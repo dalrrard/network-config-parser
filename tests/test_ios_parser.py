@@ -41,7 +41,7 @@ class TestDepthTracker:
             ("a", pytest.raises(TypeError)),
         ],
     )
-    def test_get_only_ints(self, input, expectation) -> None:
+    def test_get_only_ints(self, input, expectation) -> None:  # type: ignore
         tracker = parser.DepthTracker(current_depth=0, last_node=0)
         tracker._current_depth = input  # type: ignore
         with expectation:
