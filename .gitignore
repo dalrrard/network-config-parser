@@ -1,1 +1,10 @@
-*.cfg
+__pycache__
+
+.vscode/
+*.code-workspace
+
+.prospector.yaml
+.mypy_cache
+.pytest_cache
+.coverage
+htmlcov/
