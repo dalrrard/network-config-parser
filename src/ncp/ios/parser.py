@@ -20,7 +20,7 @@ class PositiveInt(int):
     def __get__(self, obj: object, objtype: Optional["DepthTracker"] = None) -> int:
         """Get attribute."""
         if not isinstance(value := getattr(obj, self.private_name), int):
-            raise TypeError
+            raise TypeError(f"Expected an int: Got {value!r}")
         return value
 
     def __set__(self, obj: object, value: int) -> None:
