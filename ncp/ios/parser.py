@@ -1,7 +1,8 @@
 """Parse network configuration files."""
 import re
 from dataclasses import dataclass, field
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Union
 
 from ncp.helpers import exceptions
 
@@ -62,13 +63,14 @@ class IOSParser:
         [description]
     """
 
-    config: str
+    config: Union[Path, str]
     _raw_config: str = field(init=False, repr=False)
     hostname: str = field(init=False, repr=False)
     parsed_config: Config = field(default_factory=Config, repr=False)
 
     def __post_init__(self) -> None:
         """Load variables after __init__."""
+        self.config = Path(self.config)
         self._raw_config = self._load_config()
         try:
             self.hostname = self._get_hostname()
