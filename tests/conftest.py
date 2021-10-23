@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Iterable
 
 import pytest
+from _pytest.fixtures import SubRequest
 
 from ncp.ios import parser
 
@@ -24,7 +25,7 @@ def rootdir() -> Path:
 
 # pylint: disable=redefined-outer-name
 @pytest.fixture
-def ios_parser(rootdir: Path) -> Iterable[parser.IOSParser]:
+def ios_parser(rootdir: Path, request: SubRequest) -> Iterable[parser.IOSParser]:
     """Get ios config files used for testing.
 
     Parameters
@@ -37,6 +38,7 @@ def ios_parser(rootdir: Path) -> Iterable[parser.IOSParser]:
     parser.IOSParser
         IOSParser object that represents the parsed IOS configuration file.
     """
-    ios_config = parser.IOSParser(config=rootdir / "data" / "config.cfg")
+    file: str = getattr(request, "param", "config.cfg")
+    ios_config = parser.IOSParser(config=rootdir / "data" / file)
     yield ios_config
     del ios_config

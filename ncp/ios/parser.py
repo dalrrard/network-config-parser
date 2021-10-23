@@ -6,6 +6,8 @@ from typing import Optional, Union
 
 from ncp.helpers import exceptions
 
+from . import _patterns
+
 # import networkx as nx
 
 
@@ -90,11 +92,7 @@ class IOSParser:
 
     def _get_hostname(self) -> str:
         section = "hostname"
-        match = re.search(
-            fr"^{section}\s+(?P<{section}>.*)$",
-            self._raw_config,
-            re.MULTILINE,
-        )
+        match = _patterns.hostname.search(self._raw_config)
         if not isinstance(match, re.Match):
             raise exceptions.SectionNotFoundError(
                 f"Section {section} not found in configuration."
@@ -102,26 +100,7 @@ class IOSParser:
         return match.group(section)
 
     def _get_banner(self) -> Optional[dict[str, dict[str, str]]]:
-        if match := re.findall(
-            r"""
-            ^banner                     # Find lines beginning with "banner"
-            \s+                         # Followed by one or more spaces
-            (?P<banner_type>[\w\-]+)    # Capture banner type made of letters and
-                                        #       dashes (login, motd, etc.)
-            \s+                         # Followed by one or more spaces
-            (?P<delimiter>[^\s]+)       # Followed by the delimiter made of one or
-                                        #       more non-space characters (^C, #, etc.)
-            $                           # Followed immediately by the end of the line
-            (?s:                        # re.DOTALL - make dot match newlines inside
-                                        #       the capture group
-                (?P<banner_content>.*?) # Capture everything until the delimiter
-                                        #       appears again
-                (?P=delimiter)
-            )
-            """,
-            self._raw_config,
-            re.MULTILINE | re.VERBOSE,
-        ):
+        if match := _patterns.banner.findall(self._raw_config):
             return {
                 "banner": {
                     banner_type: banner_text for banner_type, _, banner_text in match

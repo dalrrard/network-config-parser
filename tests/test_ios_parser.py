@@ -69,7 +69,19 @@ class TestIOSParser:
         """Test IOSParser initialization returns correct type."""
         assert isinstance(ios_parser, parser.IOSParser)
 
-    def test_get_hostname(self, ios_parser: parser.IOSParser) -> None:
+    @pytest.mark.parametrize(
+        "ios_parser, expected",
+        [
+            ("config.cfg", "DSW"),
+            pytest.param(
+                "config_no_hostname.cfg",
+                "DSW",
+                marks=pytest.mark.xfail(raises=AssertionError),
+            ),
+        ],
+        indirect=["ios_parser"],
+    )
+    def test_get_hostname(self, ios_parser: parser.IOSParser, expected: str) -> None:
         # pylint: disable=no-self-use
         """Test that hostname is parsed from the configuration file correctly."""
-        assert ios_parser.hostname == "DSW"
+        assert ios_parser.hostname == expected
