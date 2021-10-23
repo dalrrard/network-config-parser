@@ -13,7 +13,7 @@ class TestDepthTracker:
         # pylint: disable=no-self-use
         """Test that arguments must be passed to DepthTracker."""
         with pytest.raises(TypeError):
-            parser.DepthTracker()
+            parser.DepthTracker()  # type: ignore[call-arg]
 
     def test_current_depth_set_no_negative_numbers(self) -> None:
         # pylint: disable=no-self-use
@@ -57,7 +57,7 @@ class TestDepthTracker:
         """Test that only ints can be retrieved from current_depth."""
         tracker = parser.DepthTracker(current_depth=0, last_node=0)
         # pylint: disable=protected-access
-        tracker._current_depth = test_input  # type: ignore[attr-defined]
+        tracker._current_depth = test_input  # type: ignore[assignment]
         assert tracker.current_depth == expected
 
 

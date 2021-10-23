@@ -79,3 +79,6 @@ warn_unused_ignores = true
 warn_redundant_casts = true
 disallow_any_unimported = true
 show_error_codes = true
+
+[tool.bandit.assert_used]
+skips = ["test_*.py", "conftest.py"]
