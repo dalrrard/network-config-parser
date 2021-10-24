@@ -38,6 +38,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 88 # override black's default line-length
+experimental-string-processing = true
 exclude = '''
 /(
     \.git
@@ -58,7 +59,7 @@ profile = "black"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -v -l"
+addopts = "-ra -vv -l"
 
 [tool.pydocstyle]
 ignore = [
@@ -79,3 +80,6 @@ warn_unused_ignores = true
 warn_redundant_casts = true
 disallow_any_unimported = true
 show_error_codes = true
+
+[tool.bandit.assert_used]
+skips = ["test_*.py", "conftest.py"]

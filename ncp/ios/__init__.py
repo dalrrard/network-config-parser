@@ -1,4 +1,4 @@
 """IOS package."""
-from .parser import IOSParser
+from .parser import IOSConfig
 
-__all__ = ["IOSParser"]
+__all__ = ["IOSConfig"]

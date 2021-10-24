@@ -1,0 +1,45 @@
+"""Compiled regex patterns for parsing IOS configuration sections.
+
+These are internal interfaces and may change at any time.
+"""
+import re
+
+hostname = re.compile(
+    r"^hostname\s+(?P<hostname>[\w\d\-]+)$",
+    re.MULTILINE,
+)
+
+version = re.compile(
+    r"^version\s+(?P<version>[\d\.]+)$",
+    re.MULTILINE,
+)
+
+banner = re.compile(
+    r"""
+    ^banner                     # Find lines beginning with "banner"
+    \s+                         # Followed by one or more spaces
+    (?P<banner_type>[\w\-]+)    # Capture banner type made of letters and
+                                #       dashes (login, motd, etc.)
+    \s+                         # Followed by one or more spaces
+    (?P<delimiter>[^\s]+)       # Followed by the delimiter made of one or
+                                #       more non-space characters (^C, #, etc.)
+    $                           # Followed immediately by the end of the line
+    (?s:                        # re.DOTALL - make dot match newlines inside
+                                #       the capture group
+        (?P<banner_content>.*?) # Capture everything until the delimiter
+                                #       appears again
+        (?P=delimiter)
+    )
+    """,
+    re.MULTILINE | re.VERBOSE,
+)
+
+ipv4_address = re.compile(
+    r"""\b(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.
+          (25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.
+          (25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.
+          (25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])
+          ((?:/)(3[0-2]|[12]?[0-9]|[0-9]))?
+          \b""",
+    re.MULTILINE | re.VERBOSE,
+)

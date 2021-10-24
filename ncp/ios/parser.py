@@ -1,10 +1,14 @@
 """Parse network configuration files."""
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Union
 
 from ncp.helpers import exceptions
+
+from ..helpers import _patterns
 
 # import networkx as nx
 
@@ -18,7 +22,7 @@ class PositiveInt(int):
         self.public_name = name
         self.private_name = "_" + name
 
-    def __get__(self, obj: object, objtype: Optional["DepthTracker"] = None) -> int:
+    def __get__(self, obj: object, objtype: Optional[DepthTracker] = None) -> int:
         """Get attribute."""
         if not isinstance(value := getattr(obj, self.private_name), int):
             raise TypeError(f"Expected an int: Got {value!r}")
@@ -47,8 +51,8 @@ class Config:
 
 
 @dataclass
-class IOSParser:
-    """IOSParser class.
+class IOSConfig:
+    """IOSConfig class.
 
     Returns
     -------
@@ -65,7 +69,9 @@ class IOSParser:
 
     config: Union[Path, str]
     _raw_config: str = field(init=False, repr=False)
-    hostname: str = field(init=False, repr=False)
+    hostname: Optional[str] = field(init=False, repr=False)
+    version: Optional[str] = field(init=False, repr=False)
+    banner: Optional[dict[str, str]] = field(init=False, repr=False)
     parsed_config: Config = field(default_factory=Config, repr=False)
 
     def __post_init__(self) -> None:
@@ -75,7 +81,15 @@ class IOSParser:
         try:
             self.hostname = self._get_hostname()
         except exceptions.SectionNotFoundError:
-            self.hostname = ""
+            self.hostname = None
+        try:
+            self.version = self._get_version()
+        except exceptions.SectionNotFoundError:
+            self.version = None
+        try:
+            self.banner = self._get_banner()
+        except exceptions.SectionNotFoundError:
+            self.banner = None
 
     def __str__(self) -> str:
         """Return string representation."""
@@ -89,44 +103,24 @@ class IOSParser:
             raise exceptions.Error(f"File not found: {self.config}") from exc
 
     def _get_hostname(self) -> str:
-        section = "hostname"
-        match = re.search(
-            fr"^{section}\s+(?P<{section}>.*)$",
-            self._raw_config,
-            re.MULTILINE,
-        )
+        match = _patterns.hostname.search(self._raw_config)
         if not isinstance(match, re.Match):
             raise exceptions.SectionNotFoundError(
-                f"Section {section} not found in configuration."
+                "Section 'hostname' not found in configuration."
             )
-        return match.group(section)
+        return match.group("hostname")
 
-    def _get_banner(self) -> Optional[dict[str, dict[str, str]]]:
-        if match := re.findall(
-            r"""
-            ^banner                     # Find lines beginning with "banner"
-            \s+                         # Followed by one or more spaces
-            (?P<banner_type>[\w\-]+)    # Capture banner type made of letters and
-                                        #       dashes (login, motd, etc.)
-            \s+                         # Followed by one or more spaces
-            (?P<delimiter>[^\s]+)       # Followed by the delimiter made of one or
-                                        #       more non-space characters (^C, #, etc.)
-            $                           # Followed immediately by the end of the line
-            (?s:                        # re.DOTALL - make dot match newlines inside
-                                        #       the capture group
-                (?P<banner_content>.*?) # Capture everything until the delimiter
-                                        #       appears again
-                (?P=delimiter)
+    def _get_version(self) -> str:
+        match = _patterns.version.search(self._raw_config)
+        if not isinstance(match, re.Match):
+            raise exceptions.SectionNotFoundError(
+                "Section 'version' not found in configuration."
             )
-            """,
-            self._raw_config,
-            re.MULTILINE | re.VERBOSE,
-        ):
-            return {
-                "banner": {
-                    banner_type: banner_text for banner_type, _, banner_text in match
-                }
-            }
+        return match.group("version")
+
+    def _get_banner(self) -> Optional[dict[str, str]]:
+        if match := _patterns.banner.findall(self._raw_config):
+            return {banner_type: banner_text for banner_type, _, banner_text in match}
         return None
 
     def _split_sections(self) -> None:
