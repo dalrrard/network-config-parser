@@ -9,6 +9,11 @@ hostname = re.compile(
     re.MULTILINE,
 )
 
+version = re.compile(
+    r"^version\s+(?P<version>[\d\.]+)$",
+    re.MULTILINE,
+)
+
 banner = re.compile(
     r"""
     ^banner                     # Find lines beginning with "banner"
