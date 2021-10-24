@@ -51,22 +51,31 @@ repos:
 
   - repo: local
     hooks:
-      - id: pytest-check
-        name: pytest-check
+      - id: pytest-cov
+        name: pytest-cov
         entry: pytest
         language: system
         pass_filenames: false
         always_run: true
-      - id: coverage
-        name: coverage run
-        language: system
-        entry: coverage run -m pytest
-        pass_filenames: false
-      - id: coverage-html
-        name: coverage html
-        language: system
-        entry: coverage html
-        pass_filenames: false
+
+  # - repo: local
+  #   hooks:
+  #     - id: pytest-check
+  #       name: pytest-check
+  #       entry: pytest
+  #       language: system
+  #       pass_filenames: false
+  #       always_run: true
+  #     - id: coverage
+  #       name: coverage run
+  #       language: system
+  #       entry: coverage run -m pytest
+  #       pass_filenames: false
+  #     - id: coverage-html
+  #       name: coverage html
+  #       language: system
+  #       entry: coverage html
+  #       pass_filenames: false
 
   # - repo: https://github.com/regebro/pyroma
   #   rev: "3.2"
