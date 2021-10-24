@@ -5,9 +5,13 @@ class Error(Exception):
     """Base class for all exceptions raised by this module."""
 
 
+class FileError(Exception):
+    """Exception for low-level file issues."""
+
+
 class ParseError(Error):
-    """Base class for all configuration parsing issues."""
+    """Exception for all configuration parsing issues."""
 
 
 class SectionNotFoundError(ParseError):
-    """Base class for unfound configuration sections."""
+    """Exception for unfound configuration sections."""

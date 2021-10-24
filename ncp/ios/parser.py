@@ -13,40 +13,8 @@ from ..helpers import _patterns
 # import networkx as nx
 
 
-class PositiveInt(int):
-    """Validate that integers >= 0."""
-
-    def __set_name__(self, owner: object, name: str) -> None:
-        """Add private attribute to calling class."""
-        # pylint: disable=attribute-defined-outside-init
-        self.public_name = name
-        self.private_name = "_" + name
-
-    def __get__(self, obj: object, objtype: Optional[DepthTracker] = None) -> int:
-        """Get attribute."""
-        if not isinstance(value := getattr(obj, self.private_name), int):
-            raise TypeError(f"Expected an int: Got {value!r}")
-        return value
-
-    def __set__(self, obj: object, value: int) -> None:
-        """Verify that attribute >= 0 and set it."""
-        if value < 0:
-            raise ValueError(
-                f"Expected {self.public_name!r} to be at least 0: Got {value!r}"
-            )
-        setattr(obj, self.private_name, value)
-
-
 @dataclass
-class DepthTracker:
-    """Keep state of nodes as we traverse the configuration."""
-
-    current_depth: int = PositiveInt()
-    last_node: int = PositiveInt()
-
-
-@dataclass
-class Config:
+class Interface:
     """TODO."""
 
 
@@ -72,7 +40,7 @@ class IOSConfig:
     hostname: Optional[str] = field(init=False, repr=False)
     version: Optional[str] = field(init=False, repr=False)
     banner: Optional[dict[str, str]] = field(init=False, repr=False)
-    parsed_config: Config = field(default_factory=Config, repr=False)
+    interfaces: Optional[list[str]] = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Load variables after __init__."""
@@ -86,10 +54,8 @@ class IOSConfig:
             self.version = self._get_version()
         except exceptions.SectionNotFoundError:
             self.version = None
-        try:
-            self.banner = self._get_banner()
-        except exceptions.SectionNotFoundError:
-            self.banner = None
+        self.banner = self._get_banner()
+        self.interfaces = self._get_interfaces()
 
     def __str__(self) -> str:
         """Return string representation."""
@@ -100,7 +66,7 @@ class IOSConfig:
             with open(self.config, "r", encoding="utf-8") as file:
                 return file.read()
         except FileNotFoundError as exc:
-            raise exceptions.Error(f"File not found: {self.config}") from exc
+            raise exceptions.FileError(f"File not found: {self.config}") from exc
 
     def _get_hostname(self) -> str:
         match = _patterns.hostname.search(self._raw_config)
@@ -123,5 +89,7 @@ class IOSConfig:
             return {banner_type: banner_text for banner_type, _, banner_text in match}
         return None
 
-    def _split_sections(self) -> None:
-        pass
+    def _get_interfaces(self) -> Optional[list[str]]:
+        if match := _patterns.interfaces.findall(self._raw_config):
+            return match
+        return None

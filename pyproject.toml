@@ -63,7 +63,7 @@ profile = "black"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -vv -l"
+addopts = "-rA -vv -l --cov=ncp --cov-report=html --cov-branch"
 
 [tool.pydocstyle]
 ignore = [
