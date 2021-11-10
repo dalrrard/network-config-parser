@@ -14,11 +14,6 @@ from ..helpers import _patterns
 
 
 @dataclass
-class Interface:
-    """TODO."""
-
-
-@dataclass
 class IOSConfig:
     """IOSConfig class.
 
@@ -93,3 +88,44 @@ class IOSConfig:
         if match := _patterns.interfaces.findall(self._raw_config):
             return match
         return None
+
+
+@dataclass
+class IOSInterface:
+    """IOSInterface class.
+
+    Returns
+    -------
+    [type]
+        [description]
+
+    Raises
+    ------
+    exceptions.SectionNotFoundError
+        [description]
+    """
+
+    name: str
+    description: str
+    ip_address: str
+    subnet_mask: str
+    vlan: Optional[str]
+    mode: Optional[str]
+
+    def __post_init__(self) -> None:
+        """Load variables after __init__."""
+        match = _patterns.interface.search(self.name)
+        if not isinstance(match, re.Match):
+            raise exceptions.SectionNotFoundError(
+                f"Section 'interface {self.name}' not found in configuration."
+            )
+        self.name = match.group("name")
+        self.description = match.group("description")
+        self.ip_address = match.group("ip_address")
+        self.subnet_mask = match.group("subnet_mask")
+        self.vlan = match.group("vlan")
+
+
+@dataclass
+class Interface:
+    """Use _patterns.interface to pull information from IOSConfig.interfaces."""

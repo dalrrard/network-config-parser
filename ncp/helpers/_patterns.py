@@ -52,3 +52,16 @@ interfaces = re.compile(
     """,
     re.MULTILINE | re.VERBOSE | re.DOTALL,
 )
+
+interface = re.compile(
+    r"""
+    ^(interface\s+?(?P<interface_name>[\w/\.\-]+?)\n
+    (?P<description>description\s+?(?P<description_value>.*?)\n)?
+    (?P<interface_mode>switchport\s+?mode\s+?(?P<interface_mode_name>[\w\-]+?)\n)?
+    (?P<interface_access_vlan>switchport\s+?access\s+?vlan\s+?(?P<interface_access_vlan_number>[\d\-]+?)\n)?
+    (?P<interface_port_security>switchport\s+?port-security\s+?(?P<interface_port_security_name>[\w\-]+?)\n)?
+    .*?
+    (?=^!))
+    """,
+    re.MULTILINE | re.VERBOSE | re.DOTALL,
+)
