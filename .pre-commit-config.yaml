@@ -1,4 +1,14 @@
-exclude: "docs|.git"
+exclude: |
+            (?x)^(
+                docs|
+                .git|
+                ncp/parser/IOSGrammarLexer.py|
+                ncp/parser/IOSGrammarParser.py|
+                ncp/parser/IOSGrammarVisitor.py|
+                ncp/parser/IOSGrammarListener.py|
+                ncp/parser/IOSGrammar.tokens|
+                ncp/parser/IOSGrammarLexer.tokens
+            )$
 default_stages: ["commit"]
 fail_fast: true
 
